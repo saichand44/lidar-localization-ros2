@@ -1,6 +1,6 @@
 /**:
     ros__parameters:
-      registration_method: "NDT" #NDT_OMP
+      registration_method: "NDT_OMP" #NDT_OMP
       score_threshold: 2.0
       ndt_resolution: 1.0
       ndt_step_size: 0.1
@@ -11,7 +11,7 @@
       scan_min_range: 1.0
       scan_period: 0.1
       use_pcd_map: true
-      map_path: "src/lidar-localization-ros2/map/room.pcd"
+      map_path: "src/lidar-localization-ros2/map/lab.pcd"
       set_initial_pose: true
       initial_pose_x: 0.0
       initial_pose_y: 0.0
