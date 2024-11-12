@@ -101,6 +101,7 @@ CallbackReturn PCLLocalization::on_activate(const rclcpp_lifecycle::State &)
     }
 
     map_recieved_ = true;
+    RCLCPP_INFO(get_logger(), "Map receive status %ld", map_recieved_);
   }
 
   RCLCPP_INFO(get_logger(), "Activating end");
@@ -227,11 +228,11 @@ void PCLLocalization::initializePubSub()
     std::bind(&PCLLocalization::odomReceived, this, std::placeholders::_1));
 
   cloud_sub_ = create_subscription<sensor_msgs::msg::PointCloud2>(
-    "velodyne_points", rclcpp::SensorDataQoS(),
+    "/livox/lidar", rclcpp::SensorDataQoS(),
     std::bind(&PCLLocalization::cloudReceived, this, std::placeholders::_1));
 
   imu_sub_ = create_subscription<sensor_msgs::msg::Imu>(
-    "imu", rclcpp::SensorDataQoS(),
+    "/livox/imu", rclcpp::SensorDataQoS(),
     std::bind(&PCLLocalization::imuReceived, this, std::placeholders::_1));
 
   RCLCPP_INFO(get_logger(), "initializePubSub end");

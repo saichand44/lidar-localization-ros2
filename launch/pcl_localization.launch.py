@@ -20,6 +20,13 @@ def generate_launch_description():
 
     ld = launch.LaunchDescription()
 
+    map_tf = launch_ros.actions.Node(
+        name='map_tf',
+        package='tf2_ros',
+        executable='static_transform_publisher',
+        arguments=['0','0','0','0','0','0','1','world','map']
+        )
+
     lidar_tf = launch_ros.actions.Node(
         name='lidar_tf',
         package='tf2_ros',
@@ -90,6 +97,7 @@ def generate_launch_description():
     ld.add_action(from_inactive_to_active)
 
     ld.add_action(pcl_localization)
+    ld.add_action(map_tf)
     ld.add_action(lidar_tf)
     ld.add_action(to_inactive)
 
