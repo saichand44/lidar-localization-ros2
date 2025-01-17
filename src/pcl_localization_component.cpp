@@ -227,8 +227,12 @@ void PCLLocalization::initializePubSub()
     "/Odometry", rclcpp::SensorDataQoS(),
     std::bind(&PCLLocalization::odomReceived, this, std::placeholders::_1));
 
+  // cloud_sub_ = create_subscription<sensor_msgs::msg::PointCloud2>(
+  //   "/livox/lidar", rclcpp::SensorDataQoS(),
+  //   std::bind(&PCLLocalization::cloudReceived, this, std::placeholders::_1));
+
   cloud_sub_ = create_subscription<sensor_msgs::msg::PointCloud2>(
-    "/livox/lidar", rclcpp::SensorDataQoS(),
+    "/livox/points", 20,
     std::bind(&PCLLocalization::cloudReceived, this, std::placeholders::_1));
 
   imu_sub_ = create_subscription<sensor_msgs::msg::Imu>(

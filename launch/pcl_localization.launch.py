@@ -54,7 +54,10 @@ def generate_launch_description():
         package='pcl_localization_ros2',
         executable='pcl_localization_node',
         parameters=[localization_param_dir],
-        remappings=[('/cloud','/velodyne_points')],
+        remappings=[
+        	('/cloud','/velodyne_points'),
+        	('/pcl_pose', '/lidar_pose')
+	],
         output='screen')
 
     to_inactive = launch.actions.EmitEvent(
