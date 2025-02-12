@@ -227,13 +227,13 @@ void PCLLocalization::initializePubSub()
     "/Odometry", rclcpp::SensorDataQoS(),
     std::bind(&PCLLocalization::odomReceived, this, std::placeholders::_1));
 
-  // cloud_sub_ = create_subscription<sensor_msgs::msg::PointCloud2>(
-  //   "/livox/lidar", rclcpp::SensorDataQoS(),
-  //   std::bind(&PCLLocalization::cloudReceived, this, std::placeholders::_1));
-
   cloud_sub_ = create_subscription<sensor_msgs::msg::PointCloud2>(
-    "/livox/points", 20,
+    "/livox/lidar", rclcpp::SensorDataQoS(),
     std::bind(&PCLLocalization::cloudReceived, this, std::placeholders::_1));
+
+  // cloud_sub_ = create_subscription<sensor_msgs::msg::PointCloud2>(
+  //   "/livox/points", 20,
+  //   std::bind(&PCLLocalization::cloudReceived, this, std::placeholders::_1));
 
   imu_sub_ = create_subscription<sensor_msgs::msg::Imu>(
     "/livox/imu", rclcpp::SensorDataQoS(),
@@ -502,7 +502,7 @@ void PCLLocalization::cloudReceived(const sensor_msgs::msg::PointCloud2::ConstSh
   path_pub_->publish(*path_ptr_);
 
   last_scan_ptr_ = msg;
-
+  
   if (enable_debug_) {
     std::cout << "number of filtered cloud points: " << filtered_cloud_ptr->size() << std::endl;
     std::cout << "align time:" << time_align_end.seconds() - time_align_start.seconds() <<
