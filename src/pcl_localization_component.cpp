@@ -279,6 +279,21 @@ void PCLLocalization::initializeRegistration()
     gicp_omp->setTransformationEpsilon(transform_epsilon_);
     registration_ = gicp_omp;
   }
+  else if (registration_method_ == "SMALL_GICP"){
+    boost::shared_ptr<small_gicp::RegistrationPCL<pcl::PointXYZI, pcl::PointXYZI>> small_gicp(
+      new small_gicp::RegistrationPCL<pcl::PointXYZI, pcl::PointXYZI>());
+
+    // Need to change this ndt_num_threads_ to generic name
+    if (ndt_num_threads_ > 0) {
+      small_gicp->setNumThreads(ndt_num_threads_);
+    } else {
+      small_gicp->setNumThreads(omp_get_max_threads());
+    }
+    small_gicp->setCorrespondenceRandomness(20);
+    small_gicp->setMaxCorrespondenceDistance(1.0);
+    small_gicp->setRegistrationType("GICP");
+    registration_ = small_gicp;
+  }
   else {
     RCLCPP_ERROR(get_logger(), "Invalid registration method.");
     exit(EXIT_FAILURE);
@@ -300,7 +315,10 @@ void PCLLocalization::initialPoseReceived(const geometry_msgs::msg::PoseWithCova
   corrent_pose_with_cov_stamped_ptr_ = msg;
   pose_pub_->publish(*corrent_pose_with_cov_stamped_ptr_);
 
-  cloudReceived(last_scan_ptr_);
+  if (last_scan_ptr_ != nullptr)
+  {
+    cloudReceived(last_scan_ptr_); //TODO: Need to handle case where last_scan_ptr_ is nullptr
+  }
   RCLCPP_INFO(get_logger(), "initialPoseReceived end");
 }
 
@@ -444,7 +462,7 @@ void PCLLocalization::cloudReceived(const sensor_msgs::msg::PointCloud2::ConstSh
   for (const auto & p : filtered_cloud_ptr->points) {
     r = sqrt(pow(p.x, 2.0) + pow(p.y, 2.0));
     if (scan_min_range_ < r && r < scan_max_range_) {
-      tmp.push_back(p);
+      tmp.push_back(p); 
     }
   }
   pcl::PointCloud<pcl::PointXYZI>::Ptr tmp_ptr(new pcl::PointCloud<pcl::PointXYZI>(tmp));
@@ -463,13 +481,13 @@ void PCLLocalization::cloudReceived(const sensor_msgs::msg::PointCloud2::ConstSh
 
   bool has_converged = registration_->hasConverged();
   double fitness_score = registration_->getFitnessScore();
-  if (!has_converged) {
-    RCLCPP_WARN(get_logger(), "The registration didn't converge.");
-    return;
-  }
-  if (fitness_score > score_threshold_) {
-    RCLCPP_WARN(get_logger(), "The fitness score is over %lf.", score_threshold_);
-  }
+  // if (!has_converged) {
+  //   RCLCPP_WARN(get_logger(), "The registration didn't converge.");
+  //   return;
+  // }
+  // if (fitness_score > score_threshold_) {
+  //   RCLCPP_WARN(get_logger(), "The fitness score is over %lf.", score_threshold_);
+  // }
 
   Eigen::Matrix4f final_transformation = registration_->getFinalTransformation();
   Eigen::Matrix3d rot_mat = final_transformation.block<3, 3>(0, 0).cast<double>();

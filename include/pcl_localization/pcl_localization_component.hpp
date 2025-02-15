@@ -36,6 +36,8 @@
 
 #include "pcl_localization/lidar_undistortion.hpp"
 
+#include <small_gicp/pcl/pcl_registration.hpp>
+
 using namespace std::chrono_literals;
 
 class PCLLocalization : public rclcpp_lifecycle::LifecycleNode

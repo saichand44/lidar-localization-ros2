@@ -6,10 +6,15 @@ if(NOT CMAKE_C_STANDARD)
 endif()
 
 if(NOT CMAKE_CXX_STANDARD)
-  set(CMAKE_CXX_STANDARD 14)
+  # set(CMAKE_CXX_STANDARD 14)
+  set(CMAKE_CXX_STANDARD 17)
 endif()
 
 SET(CMAKE_CXX_FLAGS "-O2 -g ${CMAKE_CXX_FLAGS}")
+
+# to use small_gicp and pcl 1.12
+set(small_gicp_DIR "/usr/local/lib/cmake/small_gicp")
+set(PCL_DIR "/usr/local/share/pcl-1.12")
 
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp_lifecycle REQUIRED)
@@ -22,15 +27,15 @@ find_package(tf2_geometry_msgs  REQUIRED)
 find_package(tf2_sensor_msgs  REQUIRED)
 find_package(tf2_eigen REQUIRED)
 find_package(pcl_conversions REQUIRED)
-find_package(PCL REQUIRED)
+find_package(PCL 1.12.1 REQUIRED)
 find_package(ndt_omp_ros2 REQUIRED)
 find_package(OpenMP)
+find_package(small_gicp)
 
 if (OPENMP_FOUND)
     set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
     set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
 endif()
-
 
 add_library(pcl_localization_component SHARED
 src/pcl_localization_component.cpp
@@ -47,6 +52,7 @@ ament_target_dependencies(pcl_localization_component
   nav_msgs
   pcl_conversions
   ndt_omp_ros2
+  small_gicp
 )
 
 include_directories(
@@ -54,14 +60,17 @@ include_directories(
   ${PCL_INCLUDE_DIRS}
   ${lifecycle_msgs_INCLUDE_DIRS}
   ${rclcpp_lifecycle_INCLUDE_DIRS}
-  ${rclcpp_INCLUDE_DIRS})
+  ${rclcpp_INCLUDE_DIRS}
+  ${small_gicp_INCLUDE_DIRS})
 
 add_executable(pcl_localization_node src/pcl_localization_node.cpp)
+
 target_link_libraries(pcl_localization_node
   pcl_localization_component
   ${PCL_LIBRARIES}
   ${rclcpp_lifecycle_LIBRARIES}
   ${std_msgs_LIBRARIES}
+  ${small_gicp_LIBRARIES}
 )
 link_directories(
   ${PCL_LIBRARY_DIRS}
